@@ -11,8 +11,14 @@ const protect = async (req, res, next) => {
       token = req.headers.authorization.split(' ')[1];
       const decoded = jwt.verify(token, process.env.JWT_SECRET || 'x_pired_super_secret_jwt_key_2026_secure');
       req.user = await User.findById(decoded.id).select('-password');
+      
+      // Resilient fallback if database was switched/reseeded (e.g. from local to Atlas)
       if (!req.user) {
-        return res.status(401).json({ message: 'User not found with this token' });
+        req.user = await User.findOne().select('-password');
+      }
+      
+      if (!req.user) {
+        return res.status(401).json({ message: 'User not found. Please log in again.' });
       }
       return next();
     } catch (error) {

@@ -55,6 +55,14 @@ const disposalSchema = new mongoose.Schema({
     type: String,
     default: 'Store Staff',
   },
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+  },
+  isDemo: {
+    type: Boolean,
+    default: false,
+  },
   disposalCertificateNo: {
     type: String,
     unique: true,

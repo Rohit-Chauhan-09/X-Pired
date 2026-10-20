@@ -1,18 +1,32 @@
 const StaffTask = require('../models/StaffTask');
 const Product = require('../models/Product');
 const { analyzeOverstockRisk } = require('../utils/overstockEngine');
+const { getScopedUserQuery, isDemoUser } = require('../utils/userFilter');
 
 // @desc    Get today's staff suggestion tasks (or auto-generate if none exist)
 // @route   GET /api/staff-tasks
 const getStaffTasks = async (req, res) => {
   try {
     const today = new Date().toISOString().split('T')[0];
-    let tasks = await StaffTask.find({ date: today }).sort({ priority: 1, createdAt: 1 });
+    const userScope = getScopedUserQuery(req.user);
+    const isDemo = isDemoUser(req.user);
+
+    let tasks = await StaffTask.find({
+      $and: [
+        userScope,
+        { date: today },
+      ],
+    }).sort({ priority: 1, createdAt: 1 });
 
     // If no tasks generated for today, auto-generate from active inventory
     if (tasks.length === 0) {
       const now = new Date();
-      const products = await Product.find({ status: 'active', quantity: { $gt: 0 } }).sort({ expiryDate: 1 });
+      const products = await Product.find({
+        $and: [
+          userScope,
+          { status: 'active', quantity: { $gt: 0 } },
+        ],
+      }).sort({ expiryDate: 1 });
       const newTasks = [];
 
       for (const p of products) {
@@ -31,6 +45,8 @@ const getStaffTasks = async (req, res) => {
             batchNumber: p.batchNumber,
             shelfLocation: p.shelfLocation,
             date: today,
+            user: req.user?._id,
+            isDemo,
           });
         } else if (days <= 3) {
           // Urgent discount & front placement
@@ -44,6 +60,8 @@ const getStaffTasks = async (req, res) => {
             batchNumber: p.batchNumber,
             shelfLocation: p.shelfLocation,
             date: today,
+            user: req.user?._id,
+            isDemo,
           });
         } else if (days <= 7) {
           // FEFO rotation
@@ -57,6 +75,8 @@ const getStaffTasks = async (req, res) => {
             batchNumber: p.batchNumber,
             shelfLocation: p.shelfLocation,
             date: today,
+            user: req.user?._id,
+            isDemo,
           });
         }
 
@@ -73,20 +93,26 @@ const getStaffTasks = async (req, res) => {
             batchNumber: p.batchNumber,
             shelfLocation: p.shelfLocation,
             date: today,
+            user: req.user?._id,
+            isDemo,
           });
         }
 
         if (newTasks.length >= 10) break; // Keep suggestions focused and manageable
       }
 
-      // Add general closing shift reminder
-      newTasks.push({
-        title: 'End of Day: Mark Sold Items & Inventory Sync',
-        description: 'Update the system with items sold today so accurate lifespan tracking and alerts are maintained.',
-        priority: 'high',
-        taskType: 'routine_shelf_audit',
-        date: today,
-      });
+      // Add general closing shift reminder only if user has products
+      if (products.length > 0) {
+        newTasks.push({
+          title: 'End of Day: Mark Sold Items & Inventory Sync',
+          description: 'Update the system with items sold today so accurate lifespan tracking and alerts are maintained.',
+          priority: 'high',
+          taskType: 'routine_shelf_audit',
+          date: today,
+          user: req.user?._id,
+          isDemo,
+        });
+      }
 
       if (newTasks.length > 0) {
         tasks = await StaffTask.insertMany(newTasks);
@@ -126,9 +152,12 @@ const toggleTaskComplete = async (req, res) => {
 const createStaffTask = async (req, res) => {
   try {
     const today = new Date().toISOString().split('T')[0];
+    const isDemo = isDemoUser(req.user);
     const task = await StaffTask.create({
       ...req.body,
       date: req.body.date || today,
+      user: req.user?._id,
+      isDemo,
     });
     res.status(201).json(task);
   } catch (error) {

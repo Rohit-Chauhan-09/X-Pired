@@ -3,6 +3,7 @@ const SaleHistory = require('../models/SaleHistory');
 const Disposal = require('../models/Disposal');
 const { calculateSmartDiscount } = require('../utils/discountEngine');
 const { analyzeOverstockRisk } = require('../utils/overstockEngine');
+const { isDemoUser, getScopedUserQuery } = require('../utils/userFilter');
 
 // Helper: Calculate days remaining
 const getDaysRemaining = (expiryDate) => {
@@ -18,31 +19,35 @@ const getProducts = async (req, res) => {
   try {
     const { search, category, zone, rack, status = 'active' } = req.query;
 
-    let query = {};
+    const userScope = getScopedUserQuery(req.user);
+    const andClauses = [userScope];
+
     if (status !== 'all') {
-      query.status = status;
+      andClauses.push({ status });
     }
 
     if (search) {
-      query.$or = [
-        { name: { $regex: search, $options: 'i' } },
-        { batchNumber: { $regex: search, $options: 'i' } },
-        { barcode: { $regex: search, $options: 'i' } },
-        { 'shelfLocation.rack': { $regex: search, $options: 'i' } },
-        { 'shelfLocation.shelf': { $regex: search, $options: 'i' } },
-      ];
+      andClauses.push({
+        $or: [
+          { name: { $regex: search, $options: 'i' } },
+          { batchNumber: { $regex: search, $options: 'i' } },
+          { barcode: { $regex: search, $options: 'i' } },
+          { 'shelfLocation.rack': { $regex: search, $options: 'i' } },
+          { 'shelfLocation.shelf': { $regex: search, $options: 'i' } },
+        ],
+      });
     }
 
     if (category && category !== 'All') {
-      query.category = category;
+      andClauses.push({ category });
     }
 
     if (rack && rack !== 'All') {
-      query['shelfLocation.rack'] = rack;
+      andClauses.push({ 'shelfLocation.rack': rack });
     }
 
     // FEFO Sort: Expiry date ascending so earliest expiring products come FIRST
-    let products = await Product.find(query).sort({ expiryDate: 1, name: 1 });
+    let products = await Product.find({ $and: andClauses }).sort({ expiryDate: 1, name: 1 });
 
     // Client/Zone Filtering
     if (zone && zone !== 'All') {
@@ -109,6 +114,8 @@ const createProduct = async (req, res) => {
       offlineCreated,
     } = req.body;
 
+    const isDemo = isDemoUser(req.user);
+
     const product = await Product.create({
       name,
       category,
@@ -132,6 +139,8 @@ const createProduct = async (req, res) => {
       offlineCreated: !!offlineCreated,
       addedBy: req.user?._id,
       addedByName: req.user?.name || 'Store Staff',
+      user: req.user?._id,
+      isDemo,
     });
 
     res.status(201).json(product);
@@ -149,6 +158,7 @@ const syncOfflineBatch = async (req, res) => {
       return res.status(400).json({ message: 'No offline products provided' });
     }
 
+    const isDemo = isDemoUser(req.user);
     const inserted = [];
     for (const item of products) {
       const created = await Product.create({
@@ -157,6 +167,8 @@ const syncOfflineBatch = async (req, res) => {
         offlineCreated: true,
         addedBy: req.user?._id,
         addedByName: req.user?.name || item.addedByName || 'Store Staff (Offline)',
+        user: req.user?._id,
+        isDemo,
       });
       inserted.push(created);
     }
@@ -244,6 +256,8 @@ const markAsSold = async (req, res) => {
     const lossPrevented = costPrice * qty;
     const revenueRecovered = soldPrice * qty;
 
+    const isDemo = isDemoUser(req.user) || !!product.isDemo;
+
     // Record sale in history
     const saleRecord = await SaleHistory.create({
       product: product._id,
@@ -261,6 +275,8 @@ const markAsSold = async (req, res) => {
       soldBy: req.user?._id,
       soldByName: req.user?.name || 'Store Staff',
       actionSource,
+      user: req.user?._id,
+      isDemo,
     });
 
     // Decrement product quantity
@@ -300,6 +316,8 @@ const disposeProduct = async (req, res) => {
 
     const costLoss = (product.costPrice || 0) * qty;
 
+    const isDemo = isDemoUser(req.user) || !!product.isDemo;
+
     // Create permanent Disposal record
     const disposalRecord = await Disposal.create({
       product: product._id,
@@ -314,6 +332,8 @@ const disposeProduct = async (req, res) => {
       disposedBy: req.user?._id,
       disposedByName: req.user?.name || 'Store Staff',
       notes: notes || '',
+      user: req.user?._id,
+      isDemo,
     });
 
     // Update product stock
@@ -352,7 +372,13 @@ const deleteProduct = async (req, res) => {
 // @route   GET /api/products/overstock-warnings
 const getOverstockWarnings = async (req, res) => {
   try {
-    const activeProducts = await Product.find({ status: 'active', quantity: { $gt: 0 } });
+    const userScope = getScopedUserQuery(req.user);
+    const activeProducts = await Product.find({
+      $and: [
+        userScope,
+        { status: 'active', quantity: { $gt: 0 } },
+      ],
+    });
     const warnings = [];
 
     for (const prod of activeProducts) {

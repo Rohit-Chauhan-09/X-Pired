@@ -56,6 +56,14 @@ const staffTaskSchema = new mongoose.Schema({
     type: String, // YYYY-MM-DD
     default: () => new Date().toISOString().split('T')[0],
   },
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+  },
+  isDemo: {
+    type: Boolean,
+    default: false,
+  },
 }, { timestamps: true });
 
 module.exports = mongoose.model('StaffTask', staffTaskSchema);

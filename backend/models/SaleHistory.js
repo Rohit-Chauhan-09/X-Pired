@@ -71,6 +71,14 @@ const saleHistorySchema = new mongoose.Schema({
     enum: ['Manual Day-End Update', 'Month-End Update', 'Clearance Sale', 'Regular Sale'],
     default: 'Manual Day-End Update',
   },
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+  },
+  isDemo: {
+    type: Boolean,
+    default: false,
+  },
 }, { timestamps: true });
 
 module.exports = mongoose.model('SaleHistory', saleHistorySchema);

@@ -1,30 +1,34 @@
 const Disposal = require('../models/Disposal');
+const { getScopedUserQuery } = require('../utils/userFilter');
 
 // @desc    Get all disposal history records
 // @route   GET /api/disposals
 const getDisposals = async (req, res) => {
   try {
     const { search, category, reason } = req.query;
-    let query = {};
+    const userScope = getScopedUserQuery(req.user);
+    const andClauses = [userScope];
 
     if (search) {
-      query.$or = [
-        { productName: { $regex: search, $options: 'i' } },
-        { batchNumber: { $regex: search, $options: 'i' } },
-        { disposalCertificateNo: { $regex: search, $options: 'i' } },
-        { disposedByName: { $regex: search, $options: 'i' } },
-      ];
+      andClauses.push({
+        $or: [
+          { productName: { $regex: search, $options: 'i' } },
+          { batchNumber: { $regex: search, $options: 'i' } },
+          { disposalCertificateNo: { $regex: search, $options: 'i' } },
+          { disposedByName: { $regex: search, $options: 'i' } },
+        ],
+      });
     }
 
     if (category && category !== 'All') {
-      query.category = category;
+      andClauses.push({ category });
     }
 
     if (reason && reason !== 'All') {
-      query.reason = reason;
+      andClauses.push({ reason });
     }
 
-    const records = await Disposal.find(query).sort({ createdAt: -1 });
+    const records = await Disposal.find({ $and: andClauses }).sort({ createdAt: -1 });
 
     // Aggregate statistics
     const totalCostLoss = records.reduce((acc, curr) => acc + (curr.costLoss || 0), 0);

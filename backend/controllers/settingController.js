@@ -1,6 +1,7 @@
 const Setting = require('../models/Setting');
 const Product = require('../models/Product');
 const { sendExpiryAlertEmail } = require('../utils/emailService');
+const { getScopedUserQuery } = require('../utils/userFilter');
 
 // @desc    Get store settings and category colors
 // @route   GET /api/settings
@@ -44,11 +45,18 @@ const triggerEmailScan = async (req, res) => {
     const thresholdDate = new Date();
     thresholdDate.setDate(now.getDate() + thresholdDays);
 
+    const userScope = getScopedUserQuery(req.user);
+
     // Find products expiring within threshold or already expired
     const expiringProducts = await Product.find({
-      status: 'active',
-      quantity: { $gt: 0 },
-      expiryDate: { $lte: thresholdDate },
+      $and: [
+        userScope,
+        {
+          status: 'active',
+          quantity: { $gt: 0 },
+          expiryDate: { $lte: thresholdDate },
+        },
+      ],
     }).sort({ expiryDate: 1 });
 
     if (expiringProducts.length === 0) {

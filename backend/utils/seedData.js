@@ -295,7 +295,9 @@ const seedDatabase = async () => {
       }
     ];
 
-    const insertedProducts = await Product.insertMany(demoProducts);
+    const insertedProducts = await Product.insertMany(
+      demoProducts.map(p => ({ ...p, isDemo: true, user: owner._id }))
+    );
 
     console.log('💰 Seeding Financial Loss Prevented (SaleHistory) records...');
     const pastSales = [
@@ -351,7 +353,9 @@ const seedDatabase = async () => {
         actionSource: 'Manual Day-End Update',
       },
     ];
-    await SaleHistory.insertMany(pastSales);
+    await SaleHistory.insertMany(
+      pastSales.map(s => ({ ...s, isDemo: true, user: owner._id }))
+    );
 
     console.log('🗑️ Seeding Secure Disposal History audit records...');
     const disposals = [
@@ -386,7 +390,9 @@ const seedDatabase = async () => {
         notes: 'Vacuum seal breached during customer handling. Discarded per hygiene safety SOP.',
       },
     ];
-    await Disposal.insertMany(disposals);
+    await Disposal.insertMany(
+      disposals.map(d => ({ ...d, isDemo: true, user: owner._id }))
+    );
 
     console.log('✅ SEEDING COMPLETE!');
     console.log('----------------------------------------------------');

@@ -21,10 +21,11 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
-      // Token expired or invalid
+      // Token expired or session invalid
       if (window.location.pathname !== '/login' && window.location.pathname !== '/register') {
         localStorage.removeItem('xpired_token');
         localStorage.removeItem('xpired_user');
+        window.location.href = '/login';
       }
     }
     return Promise.reject(error);

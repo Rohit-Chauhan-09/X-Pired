@@ -1,6 +1,7 @@
 const Product = require('../models/Product');
 const SaleHistory = require('../models/SaleHistory');
 const Disposal = require('../models/Disposal');
+const { getScopedUserQuery } = require('../utils/userFilter');
 
 // Helper: Calculate days remaining
 const getDaysRemaining = (expiryDate) => {
@@ -14,9 +15,16 @@ const getDaysRemaining = (expiryDate) => {
 // @route   GET /api/analytics/dashboard
 const getDashboardSummary = async (req, res) => {
   try {
-    const products = await Product.find({ status: 'active', quantity: { $gt: 0 } });
-    const disposals = await Disposal.find({});
-    const sales = await SaleHistory.find({});
+    const userScope = getScopedUserQuery(req.user);
+
+    const products = await Product.find({
+      $and: [
+        userScope,
+        { status: 'active', quantity: { $gt: 0 } },
+      ],
+    });
+    const disposals = await Disposal.find(userScope);
+    const sales = await SaleHistory.find(userScope);
 
     let criticalCount = 0; // <= 3 days
     let urgentCount = 0;   // 4 - 7 days
@@ -66,14 +74,16 @@ const getDashboardSummary = async (req, res) => {
     const totalDisposalLoss = disposals.reduce((acc, curr) => acc + (curr.costLoss || 0), 0);
 
     // Recent 5 sales with loss prevented
-    const recentPreventedSales = await SaleHistory.find({})
+    const recentPreventedSales = await SaleHistory.find(userScope)
       .sort({ createdAt: -1 })
       .limit(6);
 
     // Top 5 Critical Items approaching expiry (FEFO)
     const criticalItems = await Product.find({
-      status: 'active',
-      quantity: { $gt: 0 },
+      $and: [
+        userScope,
+        { status: 'active', quantity: { $gt: 0 } },
+      ],
     })
       .sort({ expiryDate: 1 })
       .limit(8);
