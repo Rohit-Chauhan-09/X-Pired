@@ -107,7 +107,7 @@ export const AlertProvider = ({ children }) => {
       {children}
       {/* Global Toast Banner */}
       {toast && (
-        <div className="fixed bottom-5 right-5 z-50 flex items-center gap-3 px-4 py-3 rounded-xl shadow-2xl transition-all duration-300 border text-sm font-medium animate-bounce-subtle bg-slate-900 text-white border-slate-700">
+        <div className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-5 sm:bottom-5 z-50 flex items-center gap-3 px-4 py-3 rounded-xl shadow-2xl transition-all duration-300 border text-sm font-medium animate-bounce-subtle bg-slate-900 text-white border-slate-700">
           <div
             className={`w-2.5 h-2.5 rounded-full ${
               toast.type === 'success'

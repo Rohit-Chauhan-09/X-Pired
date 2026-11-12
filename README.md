@@ -1,68 +1,67 @@
-# ⏰ X-Pired: Time’s Up. Toss It Out
-### Proactive Expiry Tracking & Waste Prevention System (MERN Stack)
+# X-Pired
 
-**College Mini Project Proposal & Implementation**  
-- **Member 1:** Rohit Chauhan (Roll No: 17, Batch: B1)  
-- **Member 2:** Atharva Chavan (Roll No: 18, Batch: B1)  
+Expiry tracking and waste prevention web app built with the MERN stack.
 
----
+College Mini Project (Batch B1):
+- Rohit Chauhan (Roll No: 17)
+- Atharva Chavan (Roll No: 18)
 
-## 🌟 Overview & Core Objective
-**X-Pired** is a full-stack MERN web application built specifically for small to medium-scale retail stores, grocery marts, and pharmacy counters. It prevents product wastage and financial loss by continuously monitoring perishable lifespan in the background, alerting staff to physical shelf coordinates (rack & shelf), suggesting clearance discounts, and tracking capital saved.
+## About
 
----
+X-Pired helps small and medium grocery stores, marts, and pharmacies keep track of perishable products before they expire. Instead of manually checking shelves every day, staff can sort batches by expiry date, locate items on specific racks, apply clearance discounts, and track how much money was saved or lost.
 
-## 🛠️ Technology Stack
-- **Frontend:** React.js, Tailwind CSS, Lucide Icons, Recharts, Vite
-- **Backend:** Node.js, Express.js, Nodemailer, Node-Cron, JWT, BcryptJS
-- **Database:** MongoDB (Mongoose ODM)
-- **Offline Sync:** IndexedDB / LocalStorage queue for cold storage and offline entries
+## Features
 
----
+- **Email Alerts:** Sends expiry alert emails using Nodemailer with product details, rack location, days remaining, and estimated loss. Includes a manual scan button on the top bar.
+- **Status Zones:** Groups inventory into Expired, Critical (up to 3 days), Urgent (4 to 7 days), Attention (8 to 15 days), and Safe (over 15 days).
+- **Discount Suggestions:** Suggests markdown percentages based on how many days a batch has left before expiry.
+- **FEFO Inventory:** Sorts product batches using First Expire First Out so older stock gets sold before new stock.
+- **Daily Staff Tasks:** Generates shift tasks like rotating stock to the front of the shelf, placing discount stickers, and pulling expired items.
+- **Rack & Shelf Locator:** Shows a store rack grid (Racks A-D, Shelves 1-4) so staff can find expiring batches quickly.
+- **Overstock Warning:** Flags items where remaining quantity is too high compared to daily sales to sell before expiry.
+- **Clearance Posters:** Generates printable shelf posters with original price, discounted price, and rack location.
+- **Offline Queue:** Saves product entries locally when the internet drops (such as in storage rooms) and syncs them once back online.
+- **Financial Tracker:** Shows money recovered through clearance sales versus losses from disposed stock using charts.
+- **Custom Category Alerts:** Lets stores set custom warning days and colors for categories like Dairy, Bakery, Beverages, and Medicines.
+- **Disposal History:** Keeps a record of expired or damaged items removed from stock with certificate numbers, reason, cost, and staff name.
 
-## ✅ All 12 Features Implemented
+## Tech Stack
 
-| # | Feature Name | Description & Implementation |
-|---|---|---|
-| 1 | **Auto-Email Alerts** | Automated background expiry check with **Nodemailer** sending rich HTML alert tables with rack locations, days remaining, and potential loss at risk. Features on-demand trigger & test preview. |
-| 2 | **Color-Coded Dashboard Zones** | 🔴 Critical (≤ 3 days), 🟠 Urgent (4–7 days), 🟡 Attention (8–15 days), 🟢 Safe (> 15 days), ⬛ Expired (≤ 0 days). Clickable filter cards. |
-| 3 | **Smart Discount Suggester** | Dynamic clearance markdown engine (15% to 70% OFF) based on days left to expiry to trigger sales before perishable items expire. |
-| 4 | **Batch-Wise FEFO Logic** | **First Expire First Out** sorting across the master inventory and priority lists so older batches are liquidated before newer shipments. |
-| 5 | **Staff Daily Suggestion Generator** | Automated shift checklist: FEFO stock rotation ("move batch to front of shelf"), affix clearance labels, audit overstock, pull expired stock. |
-| 6 | **Rack/Shelf Locator** | Interactive store floor grid & rack map (Racks A, B, C, D; Shelves 1, 2, 3, 4) pinpointing the physical slot of expiring batches. |
-| 7 | **Predictive Overstock Warning** | Calculates remaining stock quantity against daily sales velocity to warn when stock is too high to sell out before expiry. |
-| 8 | **Printable Clearance Posters** | Generates high-impact promotional shelf-talkers with prices, barcodes, and rack locations. One-click `@media print` clean output. |
-| 9 | **Offline Product Form Submission** | Enables staff to enter products in cold rooms or basements without internet. Entries queue locally and sync to MongoDB automatically when reconnected. |
-| 10 | **Financial Loss Prevented Tracker** | Real-time analytics tracking capital saved by selling items before expiry vs written-off loss, with interactive Recharts graphs. |
-| 11 | **Category-Wise Custom Alerts In Different Colours** | Custom category tags & warning thresholds with interactive color pickers for Dairy, Bakery, Meat, Beverages, Snacks, Medicines, etc. |
-| 12 | **Secure Disposal History** | Audit log for cleared/expired items with permanent certificate numbers (`DSP-XXXXXX`), reasons, cost loss, and staff attribution. |
+- Frontend: React, Vite, Tailwind CSS, Recharts, Lucide Icons
+- Backend: Node.js, Express, Mongoose, JWT, BcryptJS, Nodemailer, Node-Cron
+- Database: MongoDB
 
----
+## Setup
 
-## 🚀 Getting Started
+### Requirements
 
-### 1. Prerequisites
-- **Node.js** (v18+)
-- **MongoDB** running locally on `mongodb://127.0.0.1:27017`
+- Node.js 18 or higher
+- MongoDB (local or MongoDB Atlas connection string in `backend/.env`)
 
-### 2. Backend Setup
+### Backend
+
 ```bash
 cd backend
 npm install
-npm run seed      # Populates demo accounts, batches, shelf coordinates & historical data
-npm start         # Runs API on http://localhost:5000
+npm run seed
+npm start
 ```
 
-### 3. Frontend Setup
+The backend runs on `http://localhost:5000` by default.
+
+### Frontend
+
 ```bash
 cd frontend
 npm install
-npm run dev       # Runs Vite dev server on http://localhost:5173
+npm run dev
 ```
 
----
+The frontend runs on `http://localhost:5173`.
 
-## 👤 Demo Credentials
-You can use the **1-Click Demo Login** buttons on the Login page:
-- **Store Owner:** `owner@xpired.com` | Password: `password123`
-- **Store Staff:** `staff@xpired.com` | Password: `password123`
+## Demo Accounts
+
+The login page has quick demo login buttons for testing, or you can sign in with these credentials:
+
+- Owner: `owner@xpired.com` / `XpiredMart#2026!`
+- Staff: `staff@xpired.com` / `XpiredMart#2026!`

@@ -40,7 +40,7 @@ const Register = () => {
 
   return (
     <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4 relative overflow-hidden">
-      <div className="bg-white rounded-3xl max-w-md w-full p-8 shadow-2xl border border-slate-800 relative z-10">
+      <div className="bg-white rounded-3xl max-w-md w-full p-5 sm:p-8 shadow-2xl border border-slate-800 relative z-10">
         <div className="text-center mb-6">
           <div className="w-12 h-12 mx-auto rounded-2xl bg-gradient-to-tr from-rose-600 to-amber-500 flex items-center justify-center text-white shadow-xl shadow-rose-600/30 mb-3">
             <AlertOctagon className="w-6 h-6 stroke-[2.2]" />
@@ -82,7 +82,7 @@ const Register = () => {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="text-xs font-bold text-slate-700 block mb-1">
                 Role *
@@ -118,6 +118,7 @@ const Register = () => {
             <input
               type="email"
               required
+              autoComplete="email"
               placeholder="e.g. store@domain.com"
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
@@ -132,6 +133,7 @@ const Register = () => {
             <input
               type="password"
               required
+              autoComplete="new-password"
               placeholder="••••••••"
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}

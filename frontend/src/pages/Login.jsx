@@ -28,11 +28,9 @@ const Login = () => {
   };
 
   const handleDemoLogin = async (demoEmail) => {
-    setEmail(demoEmail);
-    setPassword('password123');
     try {
       setLoading(true);
-      await login(demoEmail, 'password123');
+      await login(demoEmail, 'XpiredMart#2026!');
       showToast('Logged in successfully via demo account!', 'success');
       navigate('/');
     } catch (err) {
@@ -48,7 +46,7 @@ const Login = () => {
       <div className="absolute -top-40 -left-40 w-96 h-96 bg-rose-600/20 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-amber-600/20 rounded-full blur-3xl pointer-events-none" />
 
-      <div className="bg-white rounded-3xl max-w-md w-full p-8 shadow-2xl border border-slate-800 relative z-10">
+      <div className="bg-white rounded-3xl max-w-md w-full p-5 sm:p-8 shadow-2xl border border-slate-800 relative z-10">
         {/* Brand */}
         <div className="text-center mb-6">
           <div className="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-tr from-rose-600 to-amber-500 flex items-center justify-center text-white shadow-xl shadow-rose-600/30 mb-3">
@@ -68,7 +66,7 @@ const Login = () => {
         {/* Demo Fast Login Buttons (For Evaluation & Demo) */}
         <div className="mb-6 p-3.5 bg-slate-50 border border-slate-200 rounded-2xl space-y-2">
           <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 block text-center">
-            🚀 1-Click Demo Evaluation Logins
+            1-Click Demo Logins
           </span>
           <div className="grid grid-cols-2 gap-2">
             <button
@@ -101,6 +99,7 @@ const Login = () => {
             <input
               type="email"
               required
+              autoComplete="email"
               placeholder="e.g. owner@xpired.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -115,6 +114,7 @@ const Login = () => {
             <input
               type="password"
               required
+              autoComplete="current-password"
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}

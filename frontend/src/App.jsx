@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { AlertProvider } from './context/AlertContext';
@@ -24,6 +24,7 @@ import Register from './pages/Register';
 // Protected Route Wrapper
 const ProtectedLayout = () => {
   const { user, loading } = useAuth();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   if (loading) {
     return (
@@ -41,10 +42,10 @@ const ProtectedLayout = () => {
   }
 
   return (
-    <div className="h-screen max-h-screen bg-slate-50 flex flex-col overflow-hidden">
-      <Navbar />
+    <div className="h-dvh max-h-dvh bg-slate-50 flex flex-col overflow-hidden">
+      <Navbar onMenuToggle={() => setSidebarOpen((prev) => !prev)} />
       <div className="flex-1 flex overflow-hidden">
-        <Sidebar />
+        <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
         <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
           <Routes>
             <Route path="/" element={<Dashboard />} />

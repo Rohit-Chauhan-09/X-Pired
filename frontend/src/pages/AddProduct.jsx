@@ -265,7 +265,7 @@ const AddProduct = () => {
                   <MapPin className="w-4 h-4 text-rose-600" />
                   <span>Physical Shelf Location Coordinates (Rack/Shelf Locator)</span>
                 </div>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div>
                     <label className="text-[11px] font-bold text-slate-600 block mb-1">Aisle</label>
                     <select

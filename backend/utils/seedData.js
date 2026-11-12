@@ -35,7 +35,7 @@ const seedDatabase = async () => {
     const owner = await User.create({
       name: 'Rohit Chauhan',
       email: 'owner@xpired.com',
-      password: 'password123',
+      password: 'XpiredMart#2026!',
       role: 'owner',
       phone: '+91 98765 43210',
       storeName: 'X-Pired Fresh SuperMart',
@@ -44,7 +44,7 @@ const seedDatabase = async () => {
     const staff = await User.create({
       name: 'Atharva Chavan',
       email: 'staff@xpired.com',
-      password: 'password123',
+      password: 'XpiredMart#2026!',
       role: 'staff',
       phone: '+91 98765 43211',
       storeName: 'X-Pired Fresh SuperMart',
@@ -397,8 +397,8 @@ const seedDatabase = async () => {
     console.log('✅ SEEDING COMPLETE!');
     console.log('----------------------------------------------------');
     console.log('Demo Credentials:');
-    console.log('Store Owner: owner@xpired.com  / password123');
-    console.log('Store Staff: staff@xpired.com  / password123');
+    console.log('Store Owner: owner@xpired.com  / XpiredMart#2026!');
+    console.log('Store Staff: staff@xpired.com  / XpiredMart#2026!');
     console.log('----------------------------------------------------');
     process.exit(0);
   } catch (error) {

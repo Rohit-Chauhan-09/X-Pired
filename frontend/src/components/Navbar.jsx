@@ -12,10 +12,11 @@ import {
   AlertOctagon, 
   UserCheck, 
   ShieldAlert,
-  ExternalLink 
+  ExternalLink,
+  Menu
 } from 'lucide-react';
 
-const Navbar = () => {
+const Navbar = ({ onMenuToggle }) => {
   const { user, logout, isOwner } = useAuth();
   const { isOnline, offlineCount, manualSync, isSyncing, showToast } = useAlert();
   const [sendingEmail, setSendingEmail] = useState(false);
@@ -43,15 +44,23 @@ const Navbar = () => {
   return (
     <>
       <header className="sticky top-0 z-40 bg-white border-b border-slate-200 shadow-xs no-print">
-        <div className="px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
+        <div className="px-3 sm:px-6 lg:px-8 flex items-center justify-between h-16">
           {/* Logo & Tagline */}
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-rose-600 to-amber-500 flex items-center justify-center text-white shadow-md shadow-rose-500/20">
-              <AlertOctagon className="w-6 h-6 stroke-[2.2]" />
+          <div className="flex items-center gap-2 sm:gap-3">
+            <button
+              type="button"
+              onClick={onMenuToggle}
+              className="md:hidden p-2 -ml-1 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition"
+              aria-label="Toggle navigation menu"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-rose-600 to-amber-500 flex items-center justify-center text-white shadow-md shadow-rose-500/20">
+              <AlertOctagon className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.2]" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-extrabold text-xl tracking-tight text-slate-900">
+                <span className="font-extrabold text-lg sm:text-xl tracking-tight text-slate-900">
                   X-Pired
                 </span>
               </div>
@@ -62,19 +71,20 @@ const Navbar = () => {
           </div>
 
           {/* Center / Right Actions */}
-          <div className="flex items-center gap-3 sm:gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             {/* Feature 9: Online / Offline status badge */}
             <div className="flex items-center">
               {isOnline ? (
-                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-semibold">
+                <div className="flex items-center gap-1.5 px-2 sm:px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-semibold">
                   <span className="w-2 h-2 rounded-full bg-emerald-500" />
                   <Wifi className="w-3.5 h-3.5" />
                   <span className="hidden md:inline">Online</span>
                 </div>
               ) : (
-                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 border border-amber-300 text-xs font-bold animate-pulse">
+                <div className="flex items-center gap-1.5 px-2 sm:px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 border border-amber-300 text-xs font-bold animate-pulse">
                   <WifiOff className="w-3.5 h-3.5" />
-                  <span>Offline Mode</span>
+                  <span className="hidden sm:inline">Offline Mode</span>
+                  <span className="sm:hidden">Offline</span>
                 </div>
               )}
             </div>
@@ -84,11 +94,12 @@ const Navbar = () => {
               <button
                 onClick={manualSync}
                 disabled={isSyncing || !isOnline}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-xs disabled:opacity-50 transition"
+                className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-xs disabled:opacity-50 transition"
                 title="Sync offline queued products"
               >
                 <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
-                <span>Sync {offlineCount} Queued</span>
+                <span className="hidden sm:inline">Sync {offlineCount} Queued</span>
+                <span className="sm:hidden">{offlineCount}</span>
               </button>
             )}
 
@@ -96,11 +107,11 @@ const Navbar = () => {
             <button
               onClick={handleTriggerEmailScan}
               disabled={sendingEmail}
-              className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold border border-slate-300 transition"
+              className="flex items-center gap-1.5 px-2.5 lg:px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold border border-slate-300 transition"
               title="Trigger automated email alert scan using Nodemailer"
             >
               <Mail className={`w-3.5 h-3.5 text-rose-500 ${sendingEmail ? 'animate-bounce' : ''}`} />
-              <span>{sendingEmail ? 'Scanning & Sending...' : 'Scan & Send Email Alert'}</span>
+              <span className="hidden lg:inline">{sendingEmail ? 'Scanning & Sending...' : 'Scan & Send Email Alert'}</span>
             </button>
 
             {/* User Profile & Role Badge */}

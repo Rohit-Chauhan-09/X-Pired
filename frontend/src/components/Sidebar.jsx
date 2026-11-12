@@ -10,7 +10,8 @@ import {
   CheckSquare, 
   TrendingUp, 
   Trash2, 
-  SlidersHorizontal 
+  SlidersHorizontal,
+  X
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -27,52 +28,75 @@ const navItems = [
   { name: 'Store Settings', path: '/settings', icon: SlidersHorizontal },
 ];
 
-const Sidebar = () => {
+const Sidebar = ({ isOpen, onClose }) => {
   const { isOwner } = useAuth();
 
   return (
-    <aside className="w-64 bg-slate-900 text-slate-300 flex flex-col shrink-0 no-print h-[calc(100vh-4rem)] border-r border-slate-800 overflow-hidden select-none">
-      {/* Top Header */}
-      <div className="px-4 py-3 border-b border-slate-800/80 shrink-0">
-        <p className="text-[11px] font-extrabold uppercase tracking-widest text-slate-400">
-          Store Operations
-        </p>
-      </div>
+    <>
+      {isOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-slate-900/50 md:hidden no-print"
+          onClick={onClose}
+          aria-hidden="true"
+        />
+      )}
 
-      {/* Navigation List - Non-Scrollable & Perfectly Spaced */}
-      <nav className="flex-1 px-3 py-2 space-y-1 overflow-hidden flex flex-col justify-evenly">
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          return (
-            <NavLink
-              key={item.path}
-              to={item.path}
-              className={({ isActive }) =>
-                `flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold transition-all duration-150 ${
-                  isActive
-                    ? 'bg-rose-600 text-white shadow-md shadow-rose-900/40'
-                    : 'text-slate-300 hover:text-white hover:bg-slate-800/70'
-                }`
-              }
-            >
-              <Icon className="w-4 h-4 shrink-0" />
-              <span>{item.name}</span>
-            </NavLink>
-          );
-        })}
-      </nav>
-
-      {/* System Footer Card */}
-      <div className="p-3 m-3 rounded-xl bg-slate-800/70 border border-slate-700/50 text-xs shrink-0">
-        <div className="flex items-center justify-between text-slate-400 font-medium mb-1">
-          <span>Project Version</span>
-          <span className="font-mono text-emerald-400 font-bold">v1.0 (B1)</span>
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-slate-900 text-slate-300 flex flex-col shrink-0 no-print border-r border-slate-800 select-none transition-transform duration-200 md:static md:translate-x-0 md:h-[calc(100vh-4rem)] md:overflow-hidden ${
+          isOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
+      >
+        {/* Top Header */}
+        <div className="px-4 py-3 border-b border-slate-800/80 shrink-0 flex items-center justify-between">
+          <p className="text-[11px] font-extrabold uppercase tracking-widest text-slate-400">
+            Store Operations
+          </p>
+          <button
+            type="button"
+            onClick={onClose}
+            className="md:hidden p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition"
+            aria-label="Close navigation menu"
+          >
+            <X className="w-4 h-4" />
+          </button>
         </div>
-        <p className="text-slate-400 text-[11px] leading-tight">
-          Developed by <strong className="text-slate-200">Rohit Chauhan</strong> & <strong className="text-slate-200">Atharva Chavan</strong>
-        </p>
-      </div>
-    </aside>
+
+        {/* Navigation List */}
+        <nav className="flex-1 px-3 py-2 space-y-1 overflow-y-auto md:overflow-hidden flex flex-col md:justify-evenly">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                onClick={onClose}
+                className={({ isActive }) =>
+                  `flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold transition-all duration-150 ${
+                    isActive
+                      ? 'bg-rose-600 text-white shadow-md shadow-rose-900/40'
+                      : 'text-slate-300 hover:text-white hover:bg-slate-800/70'
+                  }`
+                }
+              >
+                <Icon className="w-4 h-4 shrink-0" />
+                <span>{item.name}</span>
+              </NavLink>
+            );
+          })}
+        </nav>
+
+        {/* System Footer Card */}
+        <div className="p-3 m-3 rounded-xl bg-slate-800/70 border border-slate-700/50 text-xs shrink-0">
+          <div className="flex items-center justify-between text-slate-400 font-medium mb-1">
+            <span>Project Version</span>
+            <span className="font-mono text-emerald-400 font-bold">v1.0 (B1)</span>
+          </div>
+          <p className="text-slate-400 text-[11px] leading-tight">
+            Developed by <strong className="text-slate-200">Rohit Chauhan</strong>
+          </p>
+        </div>
+      </aside>
+    </>
   );
 };
 
